@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      min-height: 100%;
+      background: #0d1117;
+      color: #c9d1d9;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    .main-container {
+      padding: 12px;
+    }
+
+    .brand {
+      text-align: center;
+      font-size: 22px;
+      font-weight: 800;
+      color: #58a6ff;
+      margin-bottom: 15px;
+      text-transform: uppercase;
+    }
+
+    .section-title {
+      font-size: 14px;
+      color: #8b949e;
+      margin: 10px 0 6px 0;
+      font-weight: 600;
+    }
+
+    .saha-container,
+    .match-container {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 15px;
+    }
+
+    .saha-btn,
+    .match-btn {
+      padding: 12px;
+      background: #161b22;
+      border: 1px solid #30363d;
+      color: #c9d1d9;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .saha-btn.active,
+    .match-btn.active {
+      background: #1f6feb;
+      color: #fff;
+      border-color: #58a6ff;
+    }
+
+    .camera-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .cam-btn {
+      flex: 1;
+      padding: 10px;
+      background: #161b22;
+      border: 1px solid #30363d;
+      color: #8b949e;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .cam-btn.active {
+      background: #238636;
+      color: #fff;
+    }
+
+    .rotate-btn {
+      width: 100%;
+      padding: 14px;
+      background: #238636;
+      border: 1px solid #2ea043;
+      color: #fff;
+      font-size: 15px;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .player-box {
+      position: relative;
+      width: 100%;
+      background: #000;
+      border-radius: 8px;
+      overflow: hidden;
+      aspect-ratio: 16 / 9;
+      border: 1px solid #30363d;
+    }
+
+    /* Gerçek tam ekran */
+    .player-box:fullscreen {
+      width: 100vw;
+      height: 100vh;
+      aspect-ratio: auto;
+      border: none;
+      border-radius: 0;
+      background: #000;
+    }
+
+    .player-box:-webkit-full-screen {
+      width: 100vw;
+      height: 100vh;
+      aspect-ratio: auto;
+      border: none;
+      border-radius: 0;
+      background: #000;
+    }
+
+    video {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: contain;
+      background: #000;
+    }
+
+    /* Tam ekran butonu */
+    .fullscreen-exit {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      z-index: 20;
+      display: none;
+      padding: 9px 14px;
+      background: rgba(0, 0, 0, 0.75);
+      color: #fff;
+      border: 1px solid #fff;
+      border-radius: 20px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .player-box:fullscreen .fullscreen-exit {
+      display: block;
+    }
+
+    .player-box:-webkit-full-screen .fullscreen-exit {
+      display: block;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="main-container">
+
+    <div class="brand">
+      BY TARIK
+    </div>
+
+    <div class="section-title">
+      1. SAHA SEÇİN:
+    </div>
+
+    <div class="saha-container">
+      <button
+        class="saha-btn active"
+        id="btnAcik"
+        onclick="selectSaha('acik')">
+        ⚽ AÇIK HALI SAHA
+      </button>
+
+      <button
+        class="saha-btn"
+        id="btnKapali"
+        onclick="selectSaha('kapali')">
+        🏟️ KAPALI HALI SAHA
+      </button>
+    </div>
+
+
+    <div class="section-title">
+      2. MAÇ / TARİH SEÇİN:
+    </div>
+
+    <div
+      class="match-container"
+      id="matchList">
+    </div>
+
+
+    <div class="section-title">
+      3. CANLI / TEKRAR YAYIN:
+    </div>
+
+    <div class="camera-tabs">
+
+      <button
+        class="cam-btn active"
+        id="btnCam1"
+        onclick="changeCamera(1)">
+        📷 1. Kamera
+      </button>
+
+      <button
+        class="cam-btn"
+        id="btnCam2"
+        onclick="changeCamera(2)">
+        📷 2. Kamera
+      </button>
+
+    </div>
+
+
+    <!-- TAM EKRAN BUTONU -->
+    <button
+      class="rotate-btn"
+      onclick="toggleFullscreen()">
+      ⛶ TAM EKRAN YATAY İZLE
+    </button>
+
+
+    <!-- VİDEO -->
+    <div
+      class="player-box"
+      id="playerBox">
+
+      <button
+        class="fullscreen-exit"
+        onclick="toggleFullscreen()">
+        ✕ Kapat
+      </button>
+
+      <video
+        id="video"
+        controls
+        autoplay
+        playsinline
+        webkit-playsinline>
+      </video>
+
+    </div>
+
+  </div>
+
+
+  <script>
+
+    /* =========================
+       MAÇLAR
+       ========================= */
+
+    const acikMaclar = [
+
+      {
+        name: "26 Ağustos - 1. Hafta Maçı",
+
+        cam1:
+        "https://cloud3.kamerabulutkayit.com/cameras/47/streaming/sub.m3u8?authorization=Basic%20YWRtaW46W46&audio=1&time=2026-08-26T20:00&duration=01:00:00",
+
+        cam2:
+        "https://cloud3.kamerabulutkayit.com/cameras/47/streaming/main.m3u8?authorization=Basic%20YWRtaW46W46&audio=1&time=2026-08-26T20:00&duration=01:00:00"
+      },
+
+      {
+        name: "02 Eylül - 2. Hafta Maçı",
+
+        cam1:
+        "https://ornek-link.m3u8",
+
+        cam2:
+        "https://ornek-link2.m3u8"
+      }
+
+    ];
+
+
+    const kapaliMaclar = [
+
+      {
+        name: "27 Ağustos - Kapalı Saha Maçı",
+
+        cam1:
+        "https://ornek-kapali-link1.m3u8",
+
+        cam2:
+        "https://ornek-kapali-link2.m3u8"
+      }
+
+    ];
+
+
+    /* =========================
+       DEĞİŞKENLER
+       ========================= */
+
+    let currentSaha = "acik";
+
+    let currentMatch = null;
+
+    let currentCamIndex = 1;
+
+    let video =
+      document.getElementById("video");
+
+    let playerBox =
+      document.getElementById("playerBox");
+
+    let hls = null;
+
+
+    /* =========================
+       SAHA SEÇ
+       ========================= */
+
+    function selectSaha(saha) {
+
+      currentSaha = saha;
+
+      document
+        .getElementById("btnAcik")
+        .classList
+        .toggle(
+          "active",
+          saha === "acik"
+        );
+
+      document
+        .getElementById("btnKapali")
+        .classList
+        .toggle(
+          "active",
+          saha === "kapali"
+        );
+
+      renderMatchList();
+    }
+
+
+    /* =========================
+       MAÇLARI GÖSTER
+       ========================= */
+
+    function renderMatchList() {
+
+      const listContainer =
+        document.getElementById("matchList");
+
+      listContainer.innerHTML = "";
+
+      const listData =
+        currentSaha === "acik"
+          ? acikMaclar
+          : kapaliMaclar;
+
+
+      listData.forEach(
+        (mac, index) => {
+
+          const btn =
+            document.createElement("button");
+
+          btn.className =
+            "match-btn" +
+            (index === 0
+              ? " active"
+              : "");
+
+          btn.innerText =
+            "📅 " + mac.name;
+
+
+          btn.onclick =
+            function () {
+
+              document
+                .querySelectorAll(
+                  ".match-btn"
+                )
+                .forEach(
+                  el =>
+                    el.classList
+                      .remove("active")
+                );
+
+              btn.classList.add("active");
+
+              loadMatch(mac);
+            };
+
+
+          listContainer
+            .appendChild(btn);
+
+        }
+      );
+
+
+      if (listData.length > 0) {
+
+        loadMatch(
+          listData[0]
+        );
+
+      }
+
+    }
+
+
+    /* =========================
+       MAÇ YÜKLE
+       ========================= */
+
+    function loadMatch(mac) {
+
+      currentMatch = mac;
+
+      currentCamIndex = 1;
+
+      updateCamButtons();
+
+      playStream(
+        currentMatch.cam1,
+        0
+      );
+
+    }
+
+
+    /* =========================
+       KAMERA DEĞİŞTİR
+       ========================= */
+
+    function changeCamera(camNum) {
+
+      if (
+        !currentMatch ||
+        currentCamIndex === camNum
+      ) {
+        return;
+      }
+
+
+      let currentTime =
+        video.currentTime || 0;
+
+
+      currentCamIndex = camNum;
+
+      updateCamButtons();
+
+
+      let targetUrl =
+        camNum === 1
+          ? currentMatch.cam1
+          : currentMatch.cam2;
+
+
+      playStream(
+        targetUrl,
+        currentTime
+      );
+
+    }
+
+
+    /* =========================
+       KAMERA BUTONLARI
+       ========================= */
+
+    function updateCamButtons() {
+
+      document
+        .getElementById("btnCam1")
+        .classList
+        .toggle(
+          "active",
+          currentCamIndex === 1
+        );
+
+
+      document
+        .getElementById("btnCam2")
+        .classList
+        .toggle(
+          "active",
+          currentCamIndex === 2
+        );
+
+    }
+
+
+    /* =========================
+       HLS OYNAT
+       ========================= */
+
+    function playStream(
+      url,
+      startTime = 0
+    ) {
+
+      if (hls) {
+
+        hls.destroy();
+
+        hls = null;
+      }
+
+
+      if (Hls.isSupported()) {
+
+        hls = new Hls();
+
+        hls.loadSource(url);
+
+        hls.attachMedia(video);
+
+
+        hls.on(
+          Hls.Events.MANIFEST_PARSED,
+          function () {
+
+            if (startTime > 0) {
+
+              try {
+
+                video.currentTime =
+                  startTime;
+
+              } catch (e) {}
+
+            }
+
+
+            video
+              .play()
+              .catch(
+                e =>
+                  console.log(
+                    "Otomatik başlatma engellendi."
+                  )
+              );
+
+          }
+        );
+
+      }
+
+      else if (
+        video.canPlayType(
+          "application/vnd.apple.mpegurl"
+        )
+      ) {
+
+        video.src = url;
+
+
+        video.addEventListener(
+          "loadedmetadata",
+          function () {
+
+            if (startTime > 0) {
+
+              try {
+
+                video.currentTime =
+                  startTime;
+
+              } catch (e) {}
+
+            }
+
+
+            video.play()
+              .catch(
+                e =>
+                  console.log(
+                    "Otomatik başlatma engellendi."
+                  )
+              );
+
+          },
+          {
+            once: true
+          }
+        );
+
+      }
+
+    }
+
+
+    /* =========================
+       GERÇEK TAM EKRAN
+       + YATAY MOD
+       ========================= */
+
+    async function toggleFullscreen() {
+
+      try {
+
+        /* TAM EKRANDAN ÇIK */
+        if (
+          document.fullscreenElement ||
+          document.webkitFullscreenElement
+        ) {
+
+          if (
+            document.exitFullscreen
+          ) {
+
+            await document
+              .exitFullscreen();
+
+          }
+
+          else if (
+            document.webkitExitFullscreen
+          ) {
+
+            document
+              .webkitExitFullscreen();
+
+          }
+
+
+          /* Yatay kilidi aç */
+          if (
+            screen.orientation &&
+            screen.orientation.unlock
+          ) {
+
+            screen.orientation.unlock();
+
+          }
+
+          return;
+        }
+
+
+        /* TAM EKRANA GİR */
+
+        if (
+          playerBox.requestFullscreen
+        ) {
+
+          await playerBox
+            .requestFullscreen();
+
+        }
+
+        else if (
+          playerBox.webkitRequestFullscreen
+        ) {
+
+          playerBox
+            .webkitRequestFullscreen();
+
+        }
+
+
+        /* YATAY EKRANA GEÇ */
+        if (
+          screen.orientation &&
+          screen.orientation.lock
+        ) {
+
+          try {
+
+            await screen.orientation
+              .lock("landscape");
+
+          }
+
+          catch (e) {
+
+            console.log(
+              "Tarayıcı yatay ekran kilidini desteklemiyor."
+            );
+
+          }
+
+        }
+
+      }
+
+      catch (error) {
+
+        console.log(
+          "Tam ekran açılamadı:",
+          error
+        );
+
+      }
+
+    }
+
+
+    /* =========================
+       TAM EKRANDAN ÇIKILINCA
+       ========================= */
+
+    document.addEventListener(
+      "fullscreenchange",
+      function () {
+
+        if (
+          !document.fullscreenElement
+        ) {
+
+          if (
+            screen.orientation &&
+            screen.orientation.unlock
+          ) {
+
+            try {
+
+              screen.orientation.unlock();
+
+            } catch (e) {}
+
+          }
+
+        }
+
+      }
+    );
+
+
+    /* =========================
+       BAŞLAT
+       ========================= */
+
+    renderMatchList();
+
+  </script>
+
+</body>
+</html>
