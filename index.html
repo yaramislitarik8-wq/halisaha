@@ -1,220 +1,1083 @@
 <!DOCTYPE html>
 <html lang="tr" translate="no">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="google" content="notranslate">
-  <title>Halı Saha Yayın</title>
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="google" content="notranslate">
+<title>Halı Saha Yayın</title>
 
-  <style>
-    * { box-sizing: border-box; }
-    html, body {
-      margin: 0; padding: 0; width: 100%; min-height: 100%;
-      background: #0d1117; color: #c9d1d9;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    }
-    .main-container { padding: 12px; }
-    .brand { text-align: center; font-size: 22px; font-weight: 800; color: #58a6ff; margin-bottom: 15px; text-transform: uppercase; }
-    .section-title { font-size: 14px; color: #8b949e; margin: 10px 0 6px 0; font-weight: 600; }
-    .saha-container, .match-container { display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px; }
-    .saha-btn, .match-btn { padding: 12px; background: #161b22; border: 1px solid #30363d; color: #c9d1d9; font-weight: bold; border-radius: 8px; cursor: pointer; text-align: center; }
-    .saha-btn.active, .match-btn.active { background: #1f6feb; color: #fff; border-color: #58a6ff; }
-    .camera-tabs { display: flex; gap: 8px; margin-bottom: 8px; }
-    .cam-btn { flex: 1; padding: 10px; background: #161b22; border: 1px solid #30363d; color: #8b949e; font-weight: bold; border-radius: 6px; cursor: pointer; text-align: center; }
-    .cam-btn.active { background: #238636; color: #fff; }
-    .rotate-btn { width: 100%; padding: 14px; background: #238636; border: 1px solid #2ea043; color: #fff; font-size: 15px; font-weight: bold; border-radius: 8px; cursor: pointer; text-align: center; margin-bottom: 10px; }
-    .player-box { position: relative; width: 100%; background: #000; border-radius: 8px; overflow: hidden; aspect-ratio: 16 / 9; border: 1px solid #30363d; }
-    .player-box:fullscreen { width: 100vw; height: 100vh; aspect-ratio: auto; border: none; border-radius: 0; background: #000; }
-    .player-box:-webkit-full-screen { width: 100vw; height: 100vh; aspect-ratio: auto; border: none; border-radius: 0; background: #000; }
-    video { width: 100%; height: 100%; display: block; object-fit: contain; background: #000; }
-    .fullscreen-exit { position: absolute; top: 15px; right: 15px; z-index: 20; display: none; padding: 9px 14px; background: rgba(0, 0, 0, 0.75); color: #fff; border: 1px solid #fff; border-radius: 20px; font-weight: bold; cursor: pointer; }
-    .player-box:fullscreen .fullscreen-exit { display: block; }
-    .player-box:-webkit-full-screen .fullscreen-exit { display: block; }
-    .clipper-box { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 12px; margin-top: 15px; }
-    .clipper-title { font-size: 15px; font-weight: bold; color: #d2a8ff; margin-bottom: 8px; }
-    .clipper-controls { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; flex-wrap: wrap; }
-    .clipper-input { background: #0d1117; border: 1px solid #30363d; color: #fff; padding: 8px; border-radius: 6px; width: 70px; text-align: center; font-weight: bold; }
-    .cut-btn { background: #da3633; color: white; border: none; padding: 10px 15px; border-radius: 6px; font-weight: bold; cursor: pointer; }
-    .download-btn { display: inline-block; margin-top: 8px; padding: 10px 14px; background: #238636; color: white; text-decoration: none; border-radius: 6px; font-weight: bold; }
-  </style>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+
+<style>
+*{box-sizing:border-box}
+
+html,body{
+margin:0;
+padding:0;
+width:100%;
+min-height:100%;
+background:#0d1117;
+color:#c9d1d9;
+font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif
+}
+
+.main-container{padding:12px}
+
+.brand{
+text-align:center;
+font-size:22px;
+font-weight:800;
+color:#58a6ff;
+margin-bottom:15px;
+text-transform:uppercase
+}
+
+.section-title{
+font-size:14px;
+color:#8b949e;
+margin:10px 0 6px;
+font-weight:600
+}
+
+.saha-container,
+.match-container{
+display:flex;
+flex-direction:column;
+gap:8px;
+margin-bottom:15px
+}
+
+.saha-btn,
+.match-btn{
+padding:12px;
+background:#161b22;
+border:1px solid #30363d;
+color:#c9d1d9;
+font-weight:bold;
+border-radius:8px;
+cursor:pointer;
+text-align:center
+}
+
+.saha-btn.active,
+.match-btn.active{
+background:#1f6feb;
+color:#fff;
+border-color:#58a6ff
+}
+
+.camera-tabs{
+display:flex;
+gap:8px;
+margin-bottom:8px
+}
+
+.cam-btn{
+flex:1;
+padding:10px;
+background:#161b22;
+border:1px solid #30363d;
+color:#8b949e;
+font-weight:bold;
+border-radius:6px;
+cursor:pointer;
+text-align:center
+}
+
+.cam-btn.active{
+background:#238636;
+color:#fff
+}
+
+.rotate-btn{
+width:100%;
+padding:14px;
+background:#238636;
+border:1px solid #2ea043;
+color:#fff;
+font-size:15px;
+font-weight:bold;
+border-radius:8px;
+cursor:pointer;
+text-align:center;
+margin-bottom:10px
+}
+
+.player-box{
+position:relative;
+width:100%;
+background:#000;
+border-radius:8px;
+overflow:hidden;
+aspect-ratio:16/9;
+border:1px solid #30363d
+}
+
+.player-box:fullscreen,
+.player-box:-webkit-full-screen{
+width:100vw;
+height:100vh;
+aspect-ratio:auto;
+border:none;
+border-radius:0;
+background:#000
+}
+
+video{
+width:100%;
+height:100%;
+display:block;
+object-fit:contain;
+background:#000
+}
+
+.fullscreen-exit{
+position:absolute;
+top:15px;
+right:15px;
+z-index:20;
+display:none;
+padding:9px 14px;
+background:rgba(0,0,0,.75);
+color:#fff;
+border:1px solid #fff;
+border-radius:20px;
+font-weight:bold;
+cursor:pointer
+}
+
+.player-box:fullscreen .fullscreen-exit,
+.player-box:-webkit-full-screen .fullscreen-exit{
+display:block
+}
+
+.clipper-box{
+background:#161b22;
+border:1px solid #30363d;
+border-radius:8px;
+padding:12px;
+margin-top:15px
+}
+
+.clipper-title{
+font-size:15px;
+font-weight:bold;
+color:#d2a8ff;
+margin-bottom:10px
+}
+
+.clipper-controls{
+display:flex;
+gap:8px;
+align-items:center;
+margin-bottom:10px;
+flex-wrap:wrap
+}
+
+.clipper-input{
+background:#0d1117;
+border:1px solid #30363d;
+color:#fff;
+padding:9px;
+border-radius:6px;
+width:75px;
+text-align:center;
+font-weight:bold
+}
+
+.cut-btn{
+background:#da3633;
+color:#fff;
+border:none;
+padding:11px 15px;
+border-radius:6px;
+font-weight:bold;
+cursor:pointer
+}
+
+.cut-btn:disabled{
+opacity:.5;
+cursor:not-allowed
+}
+
+.download-btn{
+display:inline-block;
+margin-top:8px;
+padding:11px 14px;
+background:#238636;
+color:white;
+text-decoration:none;
+border-radius:6px;
+font-weight:bold
+}
+
+#recordStatus{
+margin-top:10px;
+font-size:14px;
+font-weight:bold
+}
+
+#recordInfo{
+margin-top:6px;
+font-size:13px;
+color:#8b949e
+}
+</style>
 </head>
 
 <body translate="no">
 
-  <div class="main-container">
-    <div class="brand">BY TARIK</div>
+<div class="main-container">
 
-    <div class="section-title">1. SAHA SEÇİN:</div>
-    <div class="saha-container">
-      <button class="saha-btn active" id="btnAcik" onclick="selectSaha('acik')">⚽ AÇIK HALI SAHA</button>
-      <button class="saha-btn" id="btnKapali" onclick="selectSaha('kapali')">🏟️ KAPALI HALI SAHA</button>
-    </div>
+<div class="brand">BY TARIK</div>
 
-    <div class="section-title">2. MAÇ / TARİH SEÇİN:</div>
-    <div class="match-container" id="matchList"></div>
+<div class="section-title">1. SAHA SEÇİN:</div>
 
-    <div class="section-title">3. CANLI / TEKRAR YAYIN:</div>
-    <div class="camera-tabs">
-      <button class="cam-btn active" id="btnCam1" onclick="changeCamera(1)">📷 1. Kamera</button>
-      <button class="cam-btn" id="btnCam2" onclick="changeCamera(2)">📷 2. Kamera</button>
-    </div>
+<div class="saha-container">
 
-    <button class="rotate-btn" onclick="toggleFullscreen()">⛶ TAM EKRAN YATAY İZLE</button>
+<button class="saha-btn active"
+id="btnAcik"
+onclick="selectSaha('acik')">
+⚽ AÇIK HALI SAHA
+</button>
 
-    <div class="player-box" id="playerBox">
-      <button class="fullscreen-exit" onclick="toggleFullscreen()">✕ Kapat</button>
-      <video id="video" controls autoplay playsinline webkit-playsinline crossorigin="anonymous"></video>
-    </div>
+<button class="saha-btn"
+id="btnKapali"
+onclick="selectSaha('kapali')">
+🏟️ KAPALI HALI SAHA
+</button>
 
-    <div class="clipper-box">
-      <div class="clipper-title">✂️ Pozisyona Git & Klip İndir</div>
-      <div class="clipper-controls">
-        <span>Kaç Dakika Geriye Gidilsin?</span>
-        <input type="number" id="clipDuration" class="clipper-input" value="1" min="0.5" step="0.5">
-        <span>dk</span>
-        <button class="cut-btn" id="btnCut" onclick="jumpToClip()">✂️ POZİSYONA GİT</button>
-      </div>
+</div>
 
-      <div class="preview-container" id="previewBox" style="display:none; margin-top:10px;">
-        <div class="section-title" style="color:#58a6ff;">🎬 Pozisyon Başlangıcı Ayarlandı!</div>
-        <a id="downloadLink" class="download-btn" target="_blank">💾 YAYIN AKIŞINI İNDİR / AÇ</a>
-      </div>
-    </div>
+<div class="section-title">2. MAÇ / TARİH SEÇİN:</div>
 
-  </div>
+<div class="match-container" id="matchList"></div>
 
-  <script translate="no">
-    const acikMaclar = [
-      {
-        name: "26 Ağustos - 1. Hafta Maçı",
-        cam1: "https://cloud3.kamerabulutkayit.com/cameras/47/streaming/sub.m3u8?authorization=Basic%20YWRtaW46W46&audio=1&time=2026-08-26T20:00&duration=01:00:00",
-        cam2: "https://cloud3.kamerabulutkayit.com/cameras/47/streaming/main.m3u8?authorization=Basic%20YWRtaW46W46&audio=1&time=2026-08-26T20:00&duration=01:00:00"
-      },
-      {
-        name: "02 Eylül - 2. Hafta Maçı",
-        cam1: "https://ornek-link.m3u8",
-        cam2: "https://ornek-link2.m3u8"
-      }
-    ];
+<div class="section-title">3. CANLI / TEKRAR YAYIN:</div>
 
-    const kapaliMaclar = [
-      {
-        name: "30 Ağustos - Kapalı Saha Maçı",
-        cam1: "https://cloud3.kamerabulutkayit.com/cameras/46/streaming/main.m3u8?authorization=Basic%20YWRtaW46W46&audio=1&time=2026-08-29T22:00&duration=01:00:00",
-        cam2: "https://cloud3.kamerabulutkayit.com/cameras/46/streaming/sub.m3u8?authorization=Basic%20YWRtaW46W46&audio=1&time=2026-08-29T22:00&duration=01:00:00"
-      }
-    ];
+<div class="camera-tabs">
 
-    let currentSaha = "acik";
-    let currentMatch = null;
-    let currentCamIndex = 1;
-    let video = document.getElementById("video");
-    let playerBox = document.getElementById("playerBox");
-    let hls = null;
+<button class="cam-btn active"
+id="btnCam1"
+onclick="changeCamera(1)">
+📷 1. Kamera
+</button>
 
-    function selectSaha(saha) {
-      currentSaha = saha;
-      document.getElementById("btnAcik").classList.toggle("active", saha === "acik");
-      document.getElementById("btnKapali").classList.toggle("active", saha === "kapali");
-      renderMatchList();
-    }
+<button class="cam-btn"
+id="btnCam2"
+onclick="changeCamera(2)">
+📷 2. Kamera
+</button>
 
-    function renderMatchList() {
-      const listContainer = document.getElementById("matchList");
-      listContainer.innerHTML = "";
-      const listData = currentSaha === "acik" ? acikMaclar : kapaliMaclar;
+</div>
 
-      listData.forEach((mac, index) => {
-        const btn = document.createElement("button");
-        btn.className = "match-btn" + (index === 0 ? " active" : "");
-        btn.innerText = "📅 " + mac.name;
-        btn.onclick = function () {
-          document.querySelectorAll(".match-btn").forEach(el => el.classList.remove("active"));
-          btn.classList.add("active");
-          loadMatch(mac);
-        };
-        listContainer.appendChild(btn);
-      });
+<button class="rotate-btn"
+onclick="toggleFullscreen()">
+⛶ TAM EKRAN YATAY İZLE
+</button>
 
-      if (listData.length > 0) {
-        loadMatch(listData[0]);
-      }
-    }
+<div class="player-box" id="playerBox">
 
-    function loadMatch(mac) {
-      currentMatch = mac;
-      currentCamIndex = 1;
-      updateCamButtons();
-      playStream(currentMatch.cam1, 0);
-    }
+<button class="fullscreen-exit"
+onclick="toggleFullscreen()">
+✕ Kapat
+</button>
 
-    function changeCamera(camNum) {
-      if (!currentMatch || currentCamIndex === camNum) return;
-      let currentTime = video.currentTime || 0;
-      currentCamIndex = camNum;
-      updateCamButtons();
-      let targetUrl = camNum === 1 ? currentMatch.cam1 : currentMatch.cam2;
-      playStream(targetUrl, currentTime);
-    }
+<video
+id="video"
+controls
+autoplay
+playsinline
+webkit-playsinline
+crossorigin="anonymous">
+</video>
 
-    function updateCamButtons() {
-      document.getElementById("btnCam1").classList.toggle("active", currentCamIndex === 1);
-      document.getElementById("btnCam2").classList.toggle("active", currentCamIndex === 2);
-    }
+</div>
 
-    function playStream(url, startTime = 0) {
-      if (hls) { hls.destroy(); hls = null; }
-      if (Hls.isSupported()) {
-        hls = new Hls();
-        hls.loadSource(url);
-        hls.attachMedia(video);
-        hls.on(Hls.Events.MANIFEST_PARSED, function () {
-          if (startTime > 0) { try { video.currentTime = startTime; } catch (e) {} }
-          video.play().catch(e => console.log("Otomatik başlatma engellendi."));
-        });
-      } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
-        video.src = url;
-        video.addEventListener("loadedmetadata", function () {
-          if (startTime > 0) { try { video.currentTime = startTime; } catch (e) {} }
-          video.play().catch(e => console.log("Otomatik başlatma engellendi."));
-        }, { once: true });
-      }
-    }
 
-    async function toggleFullscreen() {
-      try {
-        if (document.fullscreenElement || document.webkitFullscreenElement) {
-          if (document.exitFullscreen) await document.exitFullscreen();
-          else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
-          if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock();
-          return;
-        }
-        if (playerBox.requestFullscreen) await playerBox.requestFullscreen();
-        else if (playerBox.webkitRequestFullscreen) playerBox.webkitRequestFullscreen();
-        if (screen.orientation && screen.orientation.lock) {
-          try { await screen.orientation.lock("landscape"); } catch (e) {}
-        }
-      } catch (error) { console.log("Tam ekran açılamadı:", error); }
-    }
+<!-- KAYIT AL -->
 
-    /* KASMA VE 0 İNDİRME HATASINI BİTİREN YENİ SİSTEM */
-    function jumpToClip() {
-      const minutes = parseFloat(document.getElementById("clipDuration").value) || 1;
-      const seconds = minutes * 60;
-      
-      let targetTime = Math.max(0, video.currentTime - seconds);
-      video.currentTime = targetTime;
-      video.play();
+<div class="clipper-box">
 
-      let currentStreamUrl = currentCamIndex === 1 ? currentMatch.cam1 : currentMatch.cam2;
-      
-      const downloadLink = document.getElementById("downloadLink");
-      downloadLink.href = currentStreamUrl;
-      document.getElementById("previewBox").style.display = "block";
-    }
+<div class="clipper-title">
+🎥 KAYIT AL
+</div>
 
-    renderMatchList();
-  </script>
+<div class="clipper-controls">
+
+<span>Kaç dk kaydedilsin?</span>
+
+<input
+type="number"
+id="recordDuration"
+class="clipper-input"
+value="1"
+min="0.1"
+step="0.1">
+
+<span>dk</span>
+
+<button
+class="cut-btn"
+id="recordBtn"
+onclick="startRecording()">
+🔴 KAYDET
+</button>
+
+</div>
+
+<div id="recordStatus">
+Hazır.
+</div>
+
+<div id="recordInfo"></div>
+
+<div id="recordResult"
+style="display:none">
+
+<a
+id="recordDownload"
+class="download-btn"
+download="mac-kaydi.webm">
+💾 KAYDI İNDİR
+</a>
+
+</div>
+
+</div>
+
+</div>
+
+
+<script>
+
+const acikMaclar = [
+
+{
+name:"26 Ağustos - 1. Hafta Maçı",
+
+cam1:"https://cloud3.kamerabulutkayit.com/cameras/47/streaming/sub.m3u8?authorization=Basic%20YWRtaW46W46&audio=1&time=2026-08-26T20:00&duration=01:00:00",
+
+cam2:"https://cloud3.kamerabulutkayit.com/cameras/47/streaming/main.m3u8?authorization=Basic%20YWRtaW46W46&audio=1&time=2026-08-26T20:00&duration=01:00:00"
+},
+
+{
+name:"02 Eylül - 2. Hafta Maçı",
+
+cam1:"https://ornek-link.m3u8",
+cam2:"https://ornek-link2.m3u8"
+}
+
+];
+
+
+const kapaliMaclar = [
+
+{
+name:"30 Ağustos - Kapalı Saha Maçı",
+
+cam1:"https://cloud3.kamerabulutkayit.com/cameras/46/streaming/main.m3u8?authorization=Basic%20YWRtaW46W46&audio=1&time=2026-08-29T22:00&duration=01:00:00",
+
+cam2:"https://cloud3.kamerabulutkayit.com/cameras/46/streaming/sub.m3u8?authorization=Basic%20YWRtaW46W46&audio=1&time=2026-08-29T22:00&duration=01:00:00"
+}
+
+];
+
+
+let currentSaha="acik";
+let currentMatch=null;
+let currentCamIndex=1;
+
+let video=document.getElementById("video");
+let playerBox=document.getElementById("playerBox");
+
+let hls=null;
+
+let recorder=null;
+let recordedChunks=[];
+let recordTimer=null;
+
+
+/* SAHA */
+
+function selectSaha(saha){
+
+currentSaha=saha;
+
+document
+.getElementById("btnAcik")
+.classList.toggle("active",saha==="acik");
+
+document
+.getElementById("btnKapali")
+.classList.toggle("active",saha==="kapali");
+
+renderMatchList();
+
+}
+
+
+/* MAÇ LİSTESİ */
+
+function renderMatchList(){
+
+const listContainer=
+document.getElementById("matchList");
+
+listContainer.innerHTML="";
+
+const listData=
+currentSaha==="acik"
+?acikMaclar
+:kapaliMaclar;
+
+
+listData.forEach((mac,index)=>{
+
+const btn=document.createElement("button");
+
+btn.className=
+"match-btn"+(index===0?" active":"");
+
+btn.innerText="📅 "+mac.name;
+
+btn.onclick=function(){
+
+document
+.querySelectorAll(".match-btn")
+.forEach(el=>el.classList.remove("active"));
+
+btn.classList.add("active");
+
+loadMatch(mac);
+
+};
+
+listContainer.appendChild(btn);
+
+});
+
+
+if(listData.length>0){
+
+loadMatch(listData[0]);
+
+}
+
+}
+
+
+/* MAÇ */
+
+function loadMatch(mac){
+
+currentMatch=mac;
+
+currentCamIndex=1;
+
+updateCamButtons();
+
+playStream(
+currentMatch.cam1,
+0
+);
+
+}
+
+
+/* KAMERA */
+
+function changeCamera(camNum){
+
+if(
+!currentMatch ||
+currentCamIndex===camNum
+)
+return;
+
+let currentTime=
+video.currentTime||0;
+
+currentCamIndex=camNum;
+
+updateCamButtons();
+
+let targetUrl=
+camNum===1
+?currentMatch.cam1
+:currentMatch.cam2;
+
+playStream(
+targetUrl,
+currentTime
+);
+
+}
+
+
+function updateCamButtons(){
+
+document
+.getElementById("btnCam1")
+.classList.toggle(
+"active",
+currentCamIndex===1
+);
+
+document
+.getElementById("btnCam2")
+.classList.toggle(
+"active",
+currentCamIndex===2
+);
+
+}
+
+
+/* PLAYER */
+
+function playStream(
+url,
+startTime=0
+){
+
+if(hls){
+
+hls.destroy();
+
+hls=null;
+
+}
+
+video.pause();
+
+video.removeAttribute("src");
+
+
+if(Hls.isSupported()){
+
+hls=new Hls({
+
+enableWorker:true,
+
+lowLatencyMode:false,
+
+backBufferLength:300
+
+});
+
+hls.loadSource(url);
+
+hls.attachMedia(video);
+
+
+hls.on(
+Hls.Events.MANIFEST_PARSED,
+function(){
+
+if(startTime>0){
+
+try{
+
+video.currentTime=startTime;
+
+}catch(e){}
+
+}
+
+video.play().catch(()=>{});
+
+});
+
+}
+
+
+else if(
+video.canPlayType(
+"application/vnd.apple.mpegurl"
+)){
+
+video.src=url;
+
+video.addEventListener(
+"loadedmetadata",
+function(){
+
+if(startTime>0){
+
+try{
+
+video.currentTime=startTime;
+
+}catch(e){}
+
+}
+
+video.play().catch(()=>{});
+
+},
+{once:true}
+);
+
+}
+
+}
+
+
+/* TAM EKRAN */
+
+async function toggleFullscreen(){
+
+try{
+
+if(
+document.fullscreenElement ||
+document.webkitFullscreenElement
+){
+
+if(document.exitFullscreen)
+await document.exitFullscreen();
+
+else if(document.webkitExitFullscreen)
+document.webkitExitFullscreen();
+
+if(
+screen.orientation &&
+screen.orientation.unlock
+)
+screen.orientation.unlock();
+
+return;
+
+}
+
+
+if(playerBox.requestFullscreen)
+await playerBox.requestFullscreen();
+
+else if(playerBox.webkitRequestFullscreen)
+await playerBox.webkitRequestFullscreen();
+
+
+if(
+screen.orientation &&
+screen.orientation.lock
+){
+
+try{
+
+await screen.orientation.lock(
+"landscape"
+);
+
+}catch(e){}
+
+}
+
+}catch(error){
+
+console.log(
+"Tam ekran açılamadı:",
+error
+);
+
+}
+
+}
+
+
+/* =========================
+   KAYIT SİSTEMİ
+   ========================= */
+
+function startRecording(){
+
+if(!currentMatch){
+
+alert("Önce bir maç seç.");
+
+return;
+
+}
+
+
+if(
+video.readyState<2
+){
+
+alert(
+"Video henüz hazır değil."
+);
+
+return;
+
+}
+
+
+if(
+recorder &&
+recorder.state==="recording"
+){
+
+return;
+
+}
+
+
+/*
+BURASI ÖNEMLİ:
+
+KAYDET'E BASTIĞIN ANDAKİ
+VİDEO KONUMU BAŞLANGIÇTIR.
+
+Örnek:
+
+49:56 -> başlangıç
+1 dakika -> 50:56 bitiş
+*/
+
+
+const startTime=
+video.currentTime;
+
+
+const minutes=
+parseFloat(
+document.getElementById(
+"recordDuration"
+).value
+)||1;
+
+
+const duration=
+minutes*60;
+
+
+const endTime=
+startTime+duration;
+
+
+const status=
+document.getElementById(
+"recordStatus"
+);
+
+const info=
+document.getElementById(
+"recordInfo"
+);
+
+const result=
+document.getElementById(
+"recordResult"
+);
+
+const button=
+document.getElementById(
+"recordBtn"
+);
+
+
+result.style.display="none";
+
+button.disabled=true;
+
+
+status.innerText=
+"🔴 Kayıt yapılıyor: "+
+formatTime(startTime)+
+" → "+
+formatTime(endTime);
+
+
+let stream=null;
+
+
+if(video.captureStream){
+
+stream=
+video.captureStream();
+
+}
+
+else if(video.mozCaptureStream){
+
+stream=
+video.mozCaptureStream();
+
+}
+
+else{
+
+alert(
+"Bu tarayıcı video kaydını desteklemiyor."
+);
+
+button.disabled=false;
+
+return;
+
+}
+
+
+recordedChunks=[];
+
+
+let mimeType="";
+
+
+if(
+MediaRecorder.isTypeSupported(
+"video/webm;codecs=vp9,opus"
+)
+){
+
+mimeType=
+"video/webm;codecs=vp9,opus";
+
+}
+
+else if(
+MediaRecorder.isTypeSupported(
+"video/webm;codecs=vp8,opus"
+)
+){
+
+mimeType=
+"video/webm;codecs=vp8,opus";
+
+}
+
+else{
+
+mimeType="video/webm";
+
+}
+
+
+try{
+
+recorder=
+new MediaRecorder(
+stream,
+{
+mimeType:mimeType
+}
+);
+
+}catch(error){
+
+alert(
+"Video kayıt başlatılamadı."
+);
+
+button.disabled=false;
+
+return;
+
+}
+
+
+/* VERİ */
+
+recorder.ondataavailable=
+function(event){
+
+if(
+event.data &&
+event.data.size>0
+){
+
+recordedChunks.push(
+event.data
+);
+
+}
+
+};
+
+
+/* KAYIT BİTTİ */
+
+recorder.onstop=
+function(){
+
+clearInterval(
+recordTimer
+);
+
+
+const blob=
+new Blob(
+recordedChunks,
+{
+type:mimeType
+}
+);
+
+
+if(blob.size===0){
+
+status.innerText=
+"❌ Kayıt boş oluştu.";
+
+button.disabled=false;
+
+return;
+
+}
+
+
+const url=
+URL.createObjectURL(blob);
+
+
+const download=
+document.getElementById(
+"recordDownload"
+);
+
+
+download.href=url;
+
+download.download=
+"halisaha-"+
+formatTime(startTime)
+.replace(/:/g,"-")+
+".webm";
+
+
+info.innerText=
+"🎬 "+
+formatTime(startTime)+
+" → "+
+formatTime(endTime)+
+" | "+
+Math.round(duration)+
+" saniye";
+
+
+result.style.display=
+"block";
+
+
+status.innerText=
+"✅ Kayıt tamamlandı!";
+
+
+button.disabled=false;
+
+};
+
+
+/* KAYDI BAŞLAT */
+
+recorder.start(250);
+
+
+/* VİDEOYU OYNAT */
+
+video.play().catch(()=>{});
+
+
+/*
+HER 100 MS KONTROL
+*/
+
+recordTimer=
+setInterval(
+function(){
+
+if(
+!recorder ||
+recorder.state!=="recording"
+){
+
+return;
+
+}
+
+
+if(
+video.currentTime>=endTime
+){
+
+clearInterval(
+recordTimer
+);
+
+video.pause();
+
+recorder.stop();
+
+}
+
+},
+100
+);
+
+}
+
+
+/* ZAMAN */
+
+function formatTime(seconds){
+
+seconds=
+Math.max(
+0,
+Math.floor(seconds)
+);
+
+
+const hours=
+Math.floor(
+seconds/3600
+);
+
+
+const minutes=
+Math.floor(
+(seconds%3600)/60
+);
+
+
+const secs=
+seconds%60;
+
+
+if(hours>0){
+
+return(
+String(hours)
+.padStart(2,"0")+
+":"+
+String(minutes)
+.padStart(2,"0")+
+":"+
+String(secs)
+.padStart(2,"0")
+);
+
+}
+
+
+return(
+String(minutes)
+.padStart(2,"0")+
+":"+
+String(secs)
+.padStart(2,"0")
+);
+
+}
+
+
+/* BAŞLAT */
+
+renderMatchList();
+
+</script>
+
 </body>
 </html>
