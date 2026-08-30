@@ -245,9 +245,14 @@
       recordedChunks = [];
 
       try {
-        mediaRecorder = new MediaRecorder(stream);
+        // İşlemciyi yormayacak hafif ve akıcı codec ayarı
+        let options = {};
+        if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8')) {
+          options = { mimeType: 'video/webm;codecs=vp8' };
+        }
+        mediaRecorder = new MediaRecorder(stream, options);
       } catch (e) {
-        console.log("MediaRecorder başlatılamadı:", e);
+        mediaRecorder = new MediaRecorder(stream);
       }
 
       mediaRecorder.ondataavailable = function(e) {
@@ -275,7 +280,7 @@
       };
 
       video.play();
-      mediaRecorder.start();
+      mediaRecorder.start(1000);
 
       const checkTime = setInterval(() => {
         if (video.currentTime >= endTime || video.ended) {
