@@ -39,16 +39,14 @@ margin:10px 0 6px;
 font-weight:600
 }
 
-.saha-container,
-.match-container{
+.saha-container,.match-container{
 display:flex;
 flex-direction:column;
 gap:8px;
 margin-bottom:15px
 }
 
-.saha-btn,
-.match-btn{
+.saha-btn,.match-btn{
 padding:12px;
 background:#161b22;
 border:1px solid #30363d;
@@ -59,8 +57,7 @@ cursor:pointer;
 text-align:center
 }
 
-.saha-btn.active,
-.match-btn.active{
+.saha-btn.active,.match-btn.active{
 background:#1f6feb;
 color:#fff;
 border-color:#58a6ff
@@ -295,8 +292,6 @@ crossorigin="anonymous">
 </div>
 
 
-<!-- KAYIT AL -->
-
 <div class="clipper-box">
 
 <div class="clipper-title">
@@ -365,6 +360,7 @@ cam2:"https://cloud3.kamerabulutkayit.com/cameras/47/streaming/main.m3u8?authori
 name:"02 Eylül - 2. Hafta Maçı",
 
 cam1:"https://ornek-link.m3u8",
+
 cam2:"https://ornek-link2.m3u8"
 }
 
@@ -395,7 +391,7 @@ let hls=null;
 
 let recorder=null;
 let recordedChunks=[];
-let recordTimer=null;
+let recordTimeout=null;
 
 
 /* SAHA */
@@ -404,12 +400,10 @@ function selectSaha(saha){
 
 currentSaha=saha;
 
-document
-.getElementById("btnAcik")
+document.getElementById("btnAcik")
 .classList.toggle("active",saha==="acik");
 
-document
-.getElementById("btnKapali")
+document.getElementById("btnKapali")
 .classList.toggle("active",saha==="kapali");
 
 renderMatchList();
@@ -417,7 +411,7 @@ renderMatchList();
 }
 
 
-/* MAÇ LİSTESİ */
+/* MAÇLAR */
 
 function renderMatchList(){
 
@@ -443,8 +437,7 @@ btn.innerText="📅 "+mac.name;
 
 btn.onclick=function(){
 
-document
-.querySelectorAll(".match-btn")
+document.querySelectorAll(".match-btn")
 .forEach(el=>el.classList.remove("active"));
 
 btn.classList.add("active");
@@ -467,7 +460,7 @@ loadMatch(listData[0]);
 }
 
 
-/* MAÇ */
+/* MAÇ YÜKLE */
 
 function loadMatch(mac){
 
@@ -489,10 +482,8 @@ currentMatch.cam1,
 
 function changeCamera(camNum){
 
-if(
-!currentMatch ||
-currentCamIndex===camNum
-)
+if(!currentMatch ||
+currentCamIndex===camNum)
 return;
 
 let currentTime=
@@ -517,15 +508,13 @@ currentTime
 
 function updateCamButtons(){
 
-document
-.getElementById("btnCam1")
+document.getElementById("btnCam1")
 .classList.toggle(
 "active",
 currentCamIndex===1
 );
 
-document
-.getElementById("btnCam2")
+document.getElementById("btnCam2")
 .classList.toggle(
 "active",
 currentCamIndex===2
@@ -534,12 +523,9 @@ currentCamIndex===2
 }
 
 
-/* PLAYER */
+/* YAYIN */
 
-function playStream(
-url,
-startTime=0
-){
+function playStream(url,startTime=0){
 
 if(hls){
 
@@ -578,9 +564,7 @@ function(){
 if(startTime>0){
 
 try{
-
 video.currentTime=startTime;
-
 }catch(e){}
 
 }
@@ -590,7 +574,6 @@ video.play().catch(()=>{});
 });
 
 }
-
 
 else if(
 video.canPlayType(
@@ -606,9 +589,7 @@ function(){
 if(startTime>0){
 
 try{
-
 video.currentTime=startTime;
-
 }catch(e){}
 
 }
@@ -666,9 +647,7 @@ screen.orientation.lock
 
 try{
 
-await screen.orientation.lock(
-"landscape"
-);
+await screen.orientation.lock("landscape");
 
 }catch(e){}
 
@@ -676,19 +655,16 @@ await screen.orientation.lock(
 
 }catch(error){
 
-console.log(
-"Tam ekran açılamadı:",
-error
-);
+console.log(error);
 
 }
 
 }
 
 
-/* =========================
-   KAYIT SİSTEMİ
-   ========================= */
+/* ===========================
+   GERÇEK SÜREYLE KAYIT
+   =========================== */
 
 function startRecording(){
 
@@ -701,13 +677,9 @@ return;
 }
 
 
-if(
-video.readyState<2
-){
+if(video.readyState<2){
 
-alert(
-"Video henüz hazır değil."
-);
+alert("Video henüz hazır değil.");
 
 return;
 
@@ -725,17 +697,15 @@ return;
 
 
 /*
-BURASI ÖNEMLİ:
+   ÖRNEK:
 
-KAYDET'E BASTIĞIN ANDAKİ
-VİDEO KONUMU BAŞLANGIÇTIR.
+   Video = 49:56
 
-Örnek:
+   1 dakika seçildi
 
-49:56 -> başlangıç
-1 dakika -> 50:56 bitiş
+   Kayıt:
+   49:56 → 50:56
 */
-
 
 const startTime=
 video.currentTime;
@@ -749,12 +719,8 @@ document.getElementById(
 )||1;
 
 
-const duration=
-minutes*60;
-
-
-const endTime=
-startTime+duration;
+const durationMs=
+minutes*60*1000;
 
 
 const status=
@@ -784,10 +750,7 @@ button.disabled=true;
 
 
 status.innerText=
-"🔴 Kayıt yapılıyor: "+
-formatTime(startTime)+
-" → "+
-formatTime(endTime);
+"🔴 Kayıt yapılıyor...";
 
 
 let stream=null;
@@ -850,7 +813,8 @@ mimeType=
 
 else{
 
-mimeType="video/webm";
+mimeType=
+"video/webm";
 
 }
 
@@ -861,14 +825,21 @@ recorder=
 new MediaRecorder(
 stream,
 {
-mimeType:mimeType
+mimeType:mimeType,
+
+videoBitsPerSecond:5000000,
+
+audioBitsPerSecond:128000
+
 }
 );
 
-}catch(error){
+}
+
+catch(error){
 
 alert(
-"Video kayıt başlatılamadı."
+"Kayıt başlatılamadı."
 );
 
 button.disabled=false;
@@ -878,7 +849,7 @@ return;
 }
 
 
-/* VERİ */
+/* VERİLER */
 
 recorder.ondataavailable=
 function(event){
@@ -897,13 +868,13 @@ event.data
 };
 
 
-/* KAYIT BİTTİ */
+/* BİTİNCE */
 
 recorder.onstop=
 function(){
 
-clearInterval(
-recordTimer
+clearTimeout(
+recordTimeout
 );
 
 
@@ -916,10 +887,10 @@ type:mimeType
 );
 
 
-if(blob.size===0){
+if(blob.size<10000){
 
 status.innerText=
-"❌ Kayıt boş oluştu.";
+"❌ Kayıt oluşmadı.";
 
 button.disabled=false;
 
@@ -941,9 +912,8 @@ document.getElementById(
 download.href=url;
 
 download.download=
-"halisaha-"+
-formatTime(startTime)
-.replace(/:/g,"-")+
+"hali-saha-"+
+Date.now()+
 ".webm";
 
 
@@ -951,10 +921,10 @@ info.innerText=
 "🎬 "+
 formatTime(startTime)+
 " → "+
-formatTime(endTime)+
-" | "+
-Math.round(duration)+
-" saniye";
+formatTime(
+startTime+
+durationMs/1000
+);
 
 
 result.style.display=
@@ -972,48 +942,41 @@ button.disabled=false;
 
 /* KAYDI BAŞLAT */
 
-recorder.start(250);
+recorder.start(1000);
 
 
-/* VİDEOYU OYNAT */
+/* VİDEO OYNASIN */
 
 video.play().catch(()=>{});
 
 
 /*
-HER 100 MS KONTROL
+   GERÇEK ZAMANLAYICI
+
+   currentTime kullanmıyoruz.
+
+   Böylece HLS zaman atlasa bile
+   kayıt erken bitmez.
 */
 
-recordTimer=
-setInterval(
+recordTimeout=
+setTimeout(
 function(){
 
 if(
-!recorder ||
-recorder.state!=="recording"
+recorder &&
+recorder.state==="recording"
 ){
 
-return;
-
-}
-
-
-if(
-video.currentTime>=endTime
-){
-
-clearInterval(
-recordTimer
-);
-
-video.pause();
+status.innerText=
+"⏳ Kayıt hazırlanıyor...";
 
 recorder.stop();
 
 }
 
 },
-100
+durationMs
 );
 
 }
@@ -1035,12 +998,10 @@ Math.floor(
 seconds/3600
 );
 
-
 const minutes=
 Math.floor(
 (seconds%3600)/60
 );
-
 
 const secs=
 seconds%60;
@@ -1049,25 +1010,20 @@ seconds%60;
 if(hours>0){
 
 return(
-String(hours)
-.padStart(2,"0")+
+String(hours).padStart(2,"0")+
 ":"+
-String(minutes)
-.padStart(2,"0")+
+String(minutes).padStart(2,"0")+
 ":"+
-String(secs)
-.padStart(2,"0")
+String(secs).padStart(2,"0")
 );
 
 }
 
 
 return(
-String(minutes)
-.padStart(2,"0")+
+String(minutes).padStart(2,"0")+
 ":"+
-String(secs)
-.padStart(2,"0")
+String(secs).padStart(2,"0")
 );
 
 }
