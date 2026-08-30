@@ -1,19 +1,15 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="tr" translate="no">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="google" content="notranslate">
-
 <title>Halı Saha Yayın</title>
 
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
 <style>
-
-*{
-box-sizing:border-box;
-}
+*{box-sizing:border-box}
 
 html,body{
 margin:0;
@@ -218,7 +214,6 @@ text-decoration:none;
 border-radius:7px;
 font-weight:bold;
 }
-
 </style>
 </head>
 
@@ -248,14 +243,12 @@ onclick="selectSaha('kapali')">
 
 </div>
 
-
 <div class="title">2. MAÇ / TARİH SEÇİN:</div>
 
 <div
 class="list"
 id="matchList">
 </div>
-
 
 <div class="title">3. KAMERA:</div>
 
@@ -277,13 +270,11 @@ onclick="changeCamera(2)">
 
 </div>
 
-
 <button
 class="full-btn"
 onclick="toggleFullscreen()">
 ⛶ TAM EKRAN YATAY İZLE
 </button>
-
 
 <div
 class="player"
@@ -305,9 +296,6 @@ preload="auto">
 </video>
 
 </div>
-
-
-<!-- KAYIT -->
 
 <div class="record-box">
 
@@ -366,12 +354,10 @@ download>
 
 </div>
 
-
 <script>
 
-
 /* =========================
-   MAÇLAR
+   AÇIK SAHA MAÇLARI
 ========================= */
 
 const acikMaclar=[
@@ -395,7 +381,13 @@ cam2:"https://ornek-link2.m3u8"
 ];
 
 
+/* =========================
+   KAPALI SAHA MAÇLARI
+========================= */
+
 const kapaliMaclar=[
+
+/* 1. MAÇ */
 
 {
 name:"30 Ağustos - Kapalı Saha Maçı",
@@ -403,6 +395,16 @@ name:"30 Ağustos - Kapalı Saha Maçı",
 cam1:"https://cloud3.kamerabulutkayit.com/cameras/46/streaming/main.m3u8?authorization=Basic%20YWRtaW46W46&audio=1&time=2026-08-29T22:00&duration=01:00:00",
 
 cam2:"https://cloud3.kamerabulutkayit.com/cameras/46/streaming/sub.m3u8?authorization=Basic%20YWRtaW46W46&audio=1&time=2026-08-29T22:00&duration=01:00:00"
+},
+
+/* 2. MAÇ */
+
+{
+name:"30 Ağustos - 2. Maç",
+
+cam1:"https://cloud3.kamerabulutkayit.com/cameras/46/streaming/main.m3u8?authorization=Basic%20YWRtaW46W46&audio=1&time=2026-08-29T23:00&duration=00:00:00",
+
+cam2:"https://cloud3.kamerabulutkayit.com/cameras/46/streaming/sub.m3u8?authorization=Basic%20YWRtaW46W46&audio=1&time=2026-08-29T23:00&duration=00:00:00"
 }
 
 ];
@@ -421,7 +423,7 @@ document.getElementById("player");
 
 
 /* =========================
-   SAHA
+   SAHA SEÇ
 ========================= */
 
 function selectSaha(x){
@@ -430,11 +432,17 @@ saha=x;
 
 document
 .getElementById("btnAcik")
-.classList.toggle("active",x==="acik");
+.classList.toggle(
+"active",
+x==="acik"
+);
 
 document
 .getElementById("btnKapali")
-.classList.toggle("active",x==="kapali");
+.classList.toggle(
+"active",
+x==="kapali"
+);
 
 renderMatches();
 
@@ -442,7 +450,7 @@ renderMatches();
 
 
 /* =========================
-   MAÇLAR
+   MAÇLARI GÖSTER
 ========================= */
 
 function renderMatches(){
@@ -515,7 +523,7 @@ play(m.cam1);
 
 
 /* =========================
-   KAMERA
+   KAMERA DEĞİŞTİR
 ========================= */
 
 function changeCamera(n){
@@ -556,7 +564,7 @@ camera===2
 
 
 /* =========================
-   HLS
+   YAYINI OYNAT
 ========================= */
 
 function play(url){
@@ -600,7 +608,6 @@ startLevel:-1
 
 });
 
-
 hls.loadSource(url);
 
 hls.attachMedia(video);
@@ -615,10 +622,6 @@ video.play().catch(()=>{});
 });
 
 
-/*
-HLS hata düzeltme
-*/
-
 hls.on(
 Hls.Events.ERROR,
 function(event,data){
@@ -626,14 +629,18 @@ function(event,data){
 if(!data.fatal)
 return;
 
-if(data.type===Hls.ErrorTypes.NETWORK_ERROR){
+if(
+data.type===
+Hls.ErrorTypes.NETWORK_ERROR
+){
 
 hls.startLoad();
 
 }
 
 else if(
-data.type===Hls.ErrorTypes.MEDIA_ERROR
+data.type===
+Hls.ErrorTypes.MEDIA_ERROR
 ){
 
 hls.recoverMediaError();
@@ -715,21 +722,16 @@ console.log(e);
 }
 
 
-/* =================================================
+/* =========================
    KAYIT
-================================================= */
+========================= */
 
 let recorder=null;
 let chunks=[];
-let recordStartTimer=null;
+let recordTimer=null;
 
 
 function getRecordType(){
-
-/*
-Android Chrome'da desteklenen
-formatı otomatik seçiyoruz.
-*/
 
 const types=[
 
@@ -765,18 +767,16 @@ return "";
 
 function startRecording(){
 
-if(!video){
+if(!match){
 
-alert("Video bulunamadı.");
+alert("Önce maç seç.");
 
 return;
 
 }
 
 
-if(
-video.readyState<2
-){
+if(video.readyState<2){
 
 alert(
 "Video henüz hazır değil."
@@ -823,26 +823,6 @@ const duration=
 minutes*60*1000;
 
 
-/*
-ÇOK ÖNEMLİ:
-
-KAYDET'E BASILDIĞI AN
-BAŞLANGIÇTIR.
-
-Örnek:
-
-49:56
-
-1 dakika
-
-49:56 → 50:56
-*/
-
-
-const startPosition=
-video.currentTime;
-
-
 const status=
 document.getElementById(
 "recordStatus"
@@ -876,7 +856,7 @@ getRecordType();
 if(!type){
 
 alert(
-"Bu cihaz video kaydını desteklemiyor."
+"Bu cihaz kayıt özelliğini desteklemiyor."
 );
 
 button.disabled=false;
@@ -888,7 +868,6 @@ return;
 
 let stream;
 
-
 try{
 
 stream=
@@ -897,7 +876,7 @@ video.captureStream();
 }catch(e){
 
 alert(
-"Video kayıt özelliği açılamadı."
+"Video akışı alınamadı."
 );
 
 button.disabled=false;
@@ -950,7 +929,7 @@ return;
 }
 
 
-/* KAYIT VERİSİ */
+/* VERİ */
 
 recorder.ondataavailable=
 function(e){
@@ -967,14 +946,12 @@ chunks.push(e.data);
 };
 
 
-/* KAYIT BİTTİ */
+/* BİTİŞ */
 
 recorder.onstop=
 function(){
 
-clearTimeout(
-recordStartTimer
-);
+clearTimeout(recordTimer);
 
 
 const extension=
@@ -992,9 +969,7 @@ type:type
 );
 
 
-if(
-blob.size<50000
-){
+if(blob.size<50000){
 
 status.innerText=
 "❌ Kayıt çok küçük oluştu.";
@@ -1015,11 +990,12 @@ document.getElementById(
 "recordDownload"
 );
 
-
 link.href=url;
 
 link.download=
-"hali-saha-"+Date.now()+extension;
+"hali-saha-"+
+Date.now()+
+extension;
 
 
 info.innerText=
@@ -1041,36 +1017,21 @@ button.disabled=false;
 };
 
 
-/*
-KAYDI BAŞLAT
-*/
+/* BAŞLAT */
 
 recorder.start(1000);
 
-
-/*
-Videoyu oynat.
-*/
-
 video.play().catch(()=>{});
-
 
 status.innerText=
 "🔴 Kayıt yapılıyor...";
 
 
 /*
-BURADA video.currentTime
-KULLANMIYORUZ.
-
-Gerçek saat üzerinden
-süreyi hesaplıyoruz.
-
-1 dk = tam 60 saniye.
+1 dakika = 60 saniye
 */
 
-
-recordStartTimer=
+recordTimer=
 setTimeout(
 function(){
 
@@ -1094,7 +1055,7 @@ duration
 
 
 /* =========================
-   BAŞLAT
+   BAŞLANGIÇ
 ========================= */
 
 renderMatches();
@@ -1102,4 +1063,4 @@ renderMatches();
 </script>
 
 </body>
-   </html>
+</html>
